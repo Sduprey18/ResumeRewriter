@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from pdf2image import convert_from_bytes, convert_from_path
-import pytesseract
+from pytesseract import image_to_string
 from io import BytesIO
 import base64
 from PIL import Image
@@ -36,7 +36,16 @@ async def uploadPDF(file: UploadFile):
     first_page = images[0]
     width, height = first_page.size
 
-    return (width, height)
+    arr = image_to_text(images)
+    return arr
+
+def image_to_text(imageObjects):
+    #lets get OCR now. 
+    arr = []
+    for image in imageObjects:
+        arr.append(image_to_string(image))
+
+    return arr
 '''
 @app.post("/uploadPDF")
 async def uploadPDF(file: UploadFile):
