@@ -27,7 +27,8 @@ async def uploadPDF(file: UploadFile):
     
     contents = await file.read()
     try:
-       images = convert_from_bytes(contents, poppler_path="/opt/homebrew/bin")
+       #images = convert_from_bytes(contents, poppler_path="/opt/homebrew/bin")
+       images = convert_from_bytes(contents)
     except Exception as e:
 
         raise HTTPException(status_code=500, detail=f"Failed to convert PDF to images, with error being {e}")
