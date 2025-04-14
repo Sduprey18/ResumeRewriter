@@ -1,8 +1,9 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from pdf2image import convert_from_bytes, convert_from_path
 import pytesseract
 from io import BytesIO
 import base64
+from PIL import Image
 
 app = FastAPI()
 
@@ -16,6 +17,26 @@ def root():
 def otherfunction():
     return("hi")
 
+@app.post("/uploadPDF")
+async def uploadPDF(file: UploadFile):
+    
+    if file.filename[-3:] !="pdf":
+        return (file.filename[-3:])
+    else:
+        print('is pdf')
+    
+    contents = await file.read()
+    try:
+       images = convert_from_bytes(contents, poppler_path="/opt/homebrew/bin")
+    except Exception as e:
+
+        raise HTTPException(status_code=500, detail=f"Failed to convert PDF to images, with error being {e}")
+
+    first_page = images[0]
+    width, height = first_page.size
+
+    return (width, height)
+'''
 @app.post("/uploadPDF")
 async def uploadPDF(file: UploadFile):
     pdf_bytes = await file.read()
@@ -37,4 +58,4 @@ async def uploadPDF(file: UploadFile):
 
     
     return returnDict
-    
+'''
