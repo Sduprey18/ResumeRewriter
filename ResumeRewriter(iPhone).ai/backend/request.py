@@ -5,7 +5,7 @@ uploadURL = "http://127.0.0.1:8000/uploadPDF"
 x = requests.get(url)
 
 _file = {
-    'file': ('backend/sherkeemDupreyCurrentResume.pdf', open('backend/sherkeemDupreyCurrentResume.pdf', 'rb'), 'application/pdf')
+    'file': ('tests/OldResume.pdf', open('tests/OldResume.pdf', 'rb'), 'application/pdf')
 }
 
 response = requests.post(uploadURL, files=_file)

@@ -1,5 +1,1 @@
-ok, so the the upload pdf fully works. you can upload your pdf. what should we do next? we know we want to use ocr. Should the text 
-go straight to another rfunction? or shoudl something happen? remeber, the main goal is to end up returing the newly written pdf.
-
-#ok, so now that we can generate pdfs, were like 50% done. Now we need to make a barebones jake resume template
-for gpt to be able to cook up. I will put that in JakeTemplate.pdf or sumn
+Figure out how to get the long prompt into a way the ai can actualy understand
