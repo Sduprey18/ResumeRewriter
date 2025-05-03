@@ -1,1 +1,1 @@
-Figure out how to get the long prompt into a way the ai can actualy understand
+ok, we got the api with the system content, we will make the system prompt somethinbg, 

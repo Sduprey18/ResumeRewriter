@@ -4,9 +4,35 @@ from pytesseract import image_to_string
 from io import BytesIO
 import base64
 from PIL import Image
+from huggingface_hub import InferenceClient
+from dotenv import load_dotenv
+import os
+
+load_dotenv() 
+api_key = os.getenv("api_key")
 
 app = FastAPI()
 
+client = InferenceClient(
+    provider="novita",
+    api_key=f"{api_key}",
+)
+
+completion = client.chat.completions.create(
+    model="deepseek-ai/DeepSeek-V3-0324",
+    messages=[
+        {
+            "role": "system",
+            "content": "You are an expert resume writer. Fill this LaTeX template with content tailored to the job description. Prioritize matching keywords and quantifiable achievements."
+            
+        },
+
+        {
+                "role": "user",
+                "content" : "Are you my friend? :)"
+            }
+    ],
+)
 #well use this file to put the finished pdf once its ready. now we need to create endpoint to take in s pdf file
 
 @app.get("/")
@@ -46,6 +72,9 @@ def image_to_text(imageObjects):
         arr.append(image_to_string(image))
 
     return arr
+
+
+
 '''
 @app.post("/uploadPDF")
 async def uploadPDF(file: UploadFile):
