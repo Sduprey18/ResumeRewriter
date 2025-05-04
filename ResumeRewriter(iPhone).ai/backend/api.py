@@ -1,38 +1,16 @@
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from pdf2image import convert_from_bytes, convert_from_path
+from fastapi import FastAPI, File, HTTPException, UploadFile, Body
+from fastapi.responses import StreamingResponse
+from pdf2image import convert_from_bytes
 from pytesseract import image_to_string
 from io import BytesIO
-import base64
 from PIL import Image
-from huggingface_hub import InferenceClient
-from dotenv import load_dotenv
-import os
+import subprocess
+from pdflatex import PDFLaTeX
 
-load_dotenv() 
-api_key = os.getenv("api_key")
 
 app = FastAPI()
 
-client = InferenceClient(
-    provider="novita",
-    api_key=f"{api_key}",
-)
 
-completion = client.chat.completions.create(
-    model="deepseek-ai/DeepSeek-V3-0324",
-    messages=[
-        {
-            "role": "system",
-            "content": "You are an expert resume writer. Fill this LaTeX template with content tailored to the job description. Prioritize matching keywords and quantifiable achievements."
-            
-        },
-
-        {
-                "role": "user",
-                "content" : "Are you my friend? :)"
-            }
-    ],
-)
 #well use this file to put the finished pdf once its ready. now we need to create endpoint to take in s pdf file
 
 @app.get("/")
@@ -65,6 +43,17 @@ async def uploadPDF(file: UploadFile):
     arr = image_to_text(images)
     return arr
 
+@app.post("/provideResume")
+async def provideResume(aiResume: str = Body(...)):
+    pdfBytes = createResume(aiResume)
+
+    return StreamingResponse(
+        BytesIO(pdfBytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": "inline; filename=firstTest.pdf"}
+    )
+
+
 def image_to_text(imageObjects):
     #lets get OCR now. 
     arr = []
@@ -72,6 +61,25 @@ def image_to_text(imageObjects):
         arr.append(image_to_string(image))
 
     return arr
+
+#add deepseek latex to template 
+def createResume(aiResume):
+
+    with open("backend/beginnerTemplate.tex") as file:
+        starterCode = file.read()
+    
+    #with open("tests/temp.tex", "r") as file:
+    #    aiResume = file.read()
+    
+    starterCode += aiResume
+
+    with open("generatedResume.tex", "w") as file:
+        file.write(starterCode)
+
+    pdfl = PDFLaTeX.from_texfile('generatedResume.tex')
+    pdf, log, completed_process = pdfl.create_pdf(keep_pdf_file=True)
+    return pdf
+
 
 
 

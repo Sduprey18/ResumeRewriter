@@ -2,12 +2,19 @@ import requests
 
 url = "http://127.0.0.1:8000/something"
 uploadURL = "http://127.0.0.1:8000/uploadPDF"
-x = requests.get(url)
+
 
 _file = {
     'file': ('tests/OldResume.pdf', open('tests/OldResume.pdf', 'rb'), 'application/pdf')
 }
 
-response = requests.post(uploadURL, files=_file)
+with open("tests/temp.tex", "r") as file:
+    aiTextThing = file.read()
 
-print(response.text)
+try:
+    response = requests.post(url, data= aiTextThing)
+except Exception as e:
+    print(f"You got a {e} error")
+
+
+#print(response.text)
