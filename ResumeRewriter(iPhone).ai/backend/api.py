@@ -45,16 +45,18 @@ async def uploadPDF(file: UploadFile):
     return arr
 
 @app.post("/provideResume")
-async def provideResume(aiResume: str = Body(...)):
-    pdfBytes = createResume(aiResume)
+async def provideResume(file: UploadFile = File(..., description="LaTeX file")): 
 
+    latex_content = (await file.read()).decode("utf-8")
+
+    pdfBytes = createResume(latex_content)
     
     return StreamingResponse(
         BytesIO(pdfBytes),
         media_type="application/pdf",
         headers={"Content-Disposition": "inline; filename=firstTest.pdf"}
     )
-    
+
     #return("hey")
 
 
@@ -86,7 +88,6 @@ def createResume(aiResume):
     pdfl = PDFLaTeX.from_texfile("generatedResume.tex")
     pdf, log, completed_process = pdfl.create_pdf(keep_pdf_file=True)
     return pdf
-    #return("hey")
 
 '''
 def main():
