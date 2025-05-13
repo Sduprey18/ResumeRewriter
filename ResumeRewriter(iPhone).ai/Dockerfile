@@ -1,9 +1,10 @@
 FROM python:3.11-slim
 
-# Install system dependencies
+# Install system dependencies including LaTeX
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     poppler-utils \
+    texlive-latex-base \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -22,4 +23,4 @@ COPY backend/ ./backend/
 EXPOSE 8000
 
 # Command to run the application
-CMD ["uvicorn", "backend.api:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["uvicorn", "backend.api:app", "--host", "0.0.0.0", "--port", "8000"]

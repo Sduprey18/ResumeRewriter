@@ -1,1 +1,2 @@
-ok, we got the api with the system content, we will make the system prompt somethinbg, 
+alright, prompt updated, now need to sync eveyrthing so it happens all in one, then next is to move to xcode
+working on testing rn

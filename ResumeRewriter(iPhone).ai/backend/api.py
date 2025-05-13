@@ -6,6 +6,7 @@ from io import BytesIO
 from PIL import Image
 import subprocess
 from pdflatex import PDFLaTeX
+from pathlib import Path
 
 
 app = FastAPI()
@@ -47,11 +48,14 @@ async def uploadPDF(file: UploadFile):
 async def provideResume(aiResume: str = Body(...)):
     pdfBytes = createResume(aiResume)
 
+    
     return StreamingResponse(
         BytesIO(pdfBytes),
         media_type="application/pdf",
         headers={"Content-Disposition": "inline; filename=firstTest.pdf"}
     )
+    
+    #return("hey")
 
 
 def image_to_text(imageObjects):
@@ -64,45 +68,32 @@ def image_to_text(imageObjects):
 
 #add deepseek latex to template 
 def createResume(aiResume):
+    #base_dir = Path(__file__).resolve().parent
+    #template_path = base_dir / "beginnerTemplate.tex"
+    #tex_path = base_dir / "generatedResume.tex"
 
-    with open("backend/beginnerTemplate.tex") as file:
+    with open("backend/beginnerTemplate.tex", "r") as file:
         starterCode = file.read()
     
     #with open("tests/temp.tex", "r") as file:
-    #    aiResume = file.read()
+        #aiResume = file.read()
     
     starterCode += aiResume
 
     with open("generatedResume.tex", "w") as file:
         file.write(starterCode)
 
-    pdfl = PDFLaTeX.from_texfile('generatedResume.tex')
+    pdfl = PDFLaTeX.from_texfile("generatedResume.tex")
     pdf, log, completed_process = pdfl.create_pdf(keep_pdf_file=True)
     return pdf
-
-
-
+    #return("hey")
 
 '''
-@app.post("/uploadPDF")
-async def uploadPDF(file: UploadFile):
-    pdf_bytes = await file.read()
-    imageHolder = []
+def main():
+    with open("tests/temp.tex", "r") as file:
+            aiResume = file.read()
+    createResume(aiResume)
+    pass
 
-    with BytesIO(pdf_bytes) as pdf:
-        #images = convert_from_path(pdf)
-        images = convert_from_bytes(pdf_bytes)
-        for i, img in enumerate(images):
-            img.save(f"page_{i + 1}.png", "PNG")
-            imageHolder.append(img)
-    
-    returnDict = {}
-
-    for i in range(len(imageHolder)):
-        with open(f"page_{i+1}.png", "rb") as image_file:
-           encoded_image_string = base64.b64encode(image_file.read()).decode("utf-8")
-           returnDict[f'page{i+1}'] = encoded_image_string
-
-    
-    return returnDict
+main()
 '''

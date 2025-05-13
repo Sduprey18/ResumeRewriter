@@ -1,20 +1,17 @@
 import requests 
 
-url = "http://127.0.0.1:8000/something"
-uploadURL = "http://127.0.0.1:8000/uploadPDF"
 
+def makeResumeReq(resText):
+    url = "http://localhost:8000/provideResume"
 
-_file = {
-    'file': ('tests/OldResume.pdf', open('tests/OldResume.pdf', 'rb'), 'application/pdf')
-}
+    with open("tests/temp.tex", "r") as file:
+            aiResume = file.read()
 
-with open("tests/temp.tex", "r") as file:
-    aiTextThing = file.read()
+    #with open("backend/partialTemplate.tex", "r") as file:
+        #resumeText = file.read()
+    response = requests.post(url, data= aiResume)
 
-try:
-    response = requests.post(url, data= aiTextThing)
-except Exception as e:
-    print(f"You got a {e} error")
+    print(response)
 
-
+makeResumeReq(" ")
 #print(response.text)
