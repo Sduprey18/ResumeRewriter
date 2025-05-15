@@ -1,2 +1,1 @@
-alright, prompt updated, now need to sync eveyrthing so it happens all in one, then next is to move to xcode
-working on testing rn
+API completw. Next, work on the front end through swift. 

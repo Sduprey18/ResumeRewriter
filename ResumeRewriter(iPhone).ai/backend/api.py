@@ -4,15 +4,22 @@ from pdf2image import convert_from_bytes
 from pytesseract import image_to_string
 from io import BytesIO
 from PIL import Image
-import subprocess
 from pdflatex import PDFLaTeX
 from pathlib import Path
-
+from dotenv import load_dotenv
+import os
+from huggingface_hub import InferenceClient
+from pydantic import BaseModel
 
 app = FastAPI()
-
+#load_dotenv()
+#api_key = os.getenv("api_key")
 
 #well use this file to put the finished pdf once its ready. now we need to create endpoint to take in s pdf file
+class resumeData(BaseModel):
+    resume_text: str
+    job_desc:str
+    api_key:str
 
 @app.get("/")
 def root():
@@ -57,7 +64,44 @@ async def provideResume(file: UploadFile = File(..., description="LaTeX file")):
         headers={"Content-Disposition": "inline; filename=firstTest.pdf"}
     )
 
-    #return("hey")
+@app.post("/stringToLatex")
+async def stringToLatex( data:resumeData):
+ 
+    #api_key = os.getenv("api_key")
+
+    with open("backend/partialTemplate.tex", "r") as file:
+        latex_template = file.read()
+
+    client = InferenceClient(
+    provider="novita",
+    api_key=f"{data.api_key}",
+                            )
+        
+    completion = client.chat.completions.create(
+    model="deepseek-ai/DeepSeek-V3-0324",
+    messages=[
+        {
+            "role": "system",
+            "content": "You are an expert resume writer. Fill this LaTeX template with content tailored to the job description. Prioritize matching keywords and quantifiable achievements. Generate nothing else other than the LaTeX itself, no extra text."
+            
+        },
+
+        {
+                "role": "user",
+                "content" : f"""JOB DESCRIPTION: {data.job_desc}
+                RESUME DATA: {data.resume_text}
+                LATEX TEMPLATE: {latex_template}
+                Generate a tailored resume in LaTeX, replacing placeholders with relevant content."
+                """
+            }
+    ],
+    )
+    
+    return(completion.choices[0].message.content)
+
+
+
+
 
 
 def image_to_text(imageObjects):
@@ -70,15 +114,9 @@ def image_to_text(imageObjects):
 
 #add deepseek latex to template 
 def createResume(aiResume):
-    #base_dir = Path(__file__).resolve().parent
-    #template_path = base_dir / "beginnerTemplate.tex"
-    #tex_path = base_dir / "generatedResume.tex"
 
     with open("backend/beginnerTemplate.tex", "r") as file:
         starterCode = file.read()
-    
-    #with open("tests/temp.tex", "r") as file:
-        #aiResume = file.read()
     
     starterCode += aiResume
 
@@ -89,12 +127,3 @@ def createResume(aiResume):
     pdf, log, completed_process = pdfl.create_pdf(keep_pdf_file=True)
     return pdf
 
-'''
-def main():
-    with open("tests/temp.tex", "r") as file:
-            aiResume = file.read()
-    createResume(aiResume)
-    pass
-
-main()
-'''

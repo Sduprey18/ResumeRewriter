@@ -48,7 +48,7 @@ completion = client.chat.completions.create(
     messages=[
         {
             "role": "system",
-            "content": "You are an expert resume writer. Fill this LaTeX template with content tailored to the job description. Prioritize matching keywords and quantifiable achievements. Generate nothing else other than the LaTeX itself."
+            "content": "You are an expert resume writer. Fill this LaTeX template with content tailored to the job description. Prioritize matching keywords and quantifiable achievements. Generate nothing else other than the LaTeX itself, no extra text."
             
         },
 
